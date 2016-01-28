@@ -28,6 +28,9 @@ namespace NEventStore.Persistence.Sql
         string MarkCommitAsDispatched { get; }
 
         string BucketId { get; }
+
+        string GetBucketId(int index);
+
         string StreamId { get; }
         string StreamIdOriginal { get; }
         string StreamRevision { get; }

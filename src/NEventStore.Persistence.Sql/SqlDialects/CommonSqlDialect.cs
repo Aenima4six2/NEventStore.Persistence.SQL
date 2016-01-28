@@ -81,6 +81,11 @@ namespace NEventStore.Persistence.Sql.SqlDialects
             get { return "@BucketId"; }
         }
 
+        public virtual string GetBucketId(int index)
+        {
+            return index <= 1 ? this.BucketId : $"{this.BucketId}{index}";
+        }
+
         public virtual string StreamId
         {
             get { return "@StreamId"; }
@@ -190,8 +195,8 @@ namespace NEventStore.Persistence.Sql.SqlDialects
 
         public virtual DateTime ToDateTime(object value)
         {
-            value = value is decimal ? (long) (decimal) value : value;
-            return value is long ? new DateTime((long) value) : DateTime.SpecifyKind((DateTime) value, DateTimeKind.Utc);
+            value = value is decimal ? (long)(decimal)value : value;
+            return value is long ? new DateTime((long)value) : DateTime.SpecifyKind((DateTime)value, DateTimeKind.Utc);
         }
 
         public virtual NextPageDelegate NextPageDelegate

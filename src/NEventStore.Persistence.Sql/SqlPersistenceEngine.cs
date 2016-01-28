@@ -282,17 +282,30 @@ namespace NEventStore.Persistence.Sql
 
         public IEnumerable<ICommit> GetFrom(string bucketId, string checkpointToken)
         {
+            return this.GetFrom(new BucketList{ BucketId = bucketId }, checkpointToken);
+        }
+
+
+        public IEnumerable<ICommit> GetFrom(BucketList buckets, string checkpointToken)
+        {
             LongCheckpoint checkpoint = LongCheckpoint.Parse(checkpointToken);
-            Logger.Debug(Messages.GettingAllCommitsFromBucketAndCheckpoint, bucketId, checkpointToken);
+            Logger.Debug(Messages.GettingAllCommitsFromBucketAndCheckpoint, buckets, checkpointToken);
             return ExecuteQuery(query =>
             {
                 string statement = _dialect.GetCommitsFromBucketAndCheckpoint;
-                query.AddParameter(_dialect.BucketId, bucketId, DbType.AnsiString);
+
+                var index = 0;
+                foreach (var bucketId in buckets.ToList())
+                {
+                    query.AddParameter(_dialect.GetBucketId(++index), bucketId, DbType.AnsiString);
+                }
+
                 query.AddParameter(_dialect.CheckpointNumber, checkpoint.LongValue);
                 return query.ExecutePagedQuery(statement, (q, r) => { })
                     .Select(x => x.GetCommit(_serializer, _dialect));
             });
         }
+
 
         public IEnumerable<ICommit> GetFrom(string checkpointToken)
         {
